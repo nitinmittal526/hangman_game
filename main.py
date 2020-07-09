@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 #setup display
 pygame.init()
 WIDTH,HEIGHT=800,500
@@ -23,10 +24,7 @@ for i in range(26):
 #font
 LETTER_FONT=pygame.font.SysFont('comicsans',40)
 WORD_FONT=pygame.font.SysFont('comicsans',60)
-
-
-
-
+TITLE_FONT=pygame.font.SysFont("comicsans",6)
 
 #load images
 images=[]
@@ -35,8 +33,11 @@ for i in range(7):
   images.append(image)
 #Game variables
 hangman_status=0
-word="DEVELOPER"
-guessed=["D"]
+words=["DEVELOPER","PYTHON","PYGAME","INCEPTION"]
+
+word=random.choice(words)
+first_letter=word[0]
+guessed=[first_letter]
 
 # colors
 WHITE=(255,255,255)
@@ -51,6 +52,9 @@ run=True
 
 def draw():
   win.fill(WHITE)
+  #draw title
+  text=TITLE_FONT.render("Hangman Game",1,BLACK)
+  win.blit(text,(WIDTH/2-text.get_width()/2,20))
   #draw word
   display_word=""
   for letter in word:
@@ -72,12 +76,20 @@ def draw():
   win.blit(images[hangman_status],(150,100))
   pygame.display.update()
 
+def display_message(message):
+  win.fill(WHITE)
+  text=WORD_FONT.render(message,1,BLACK)
+  win.blit(text,((WIDTH/2-text.get_width()/2),(HEIGHT/2-text.get_height()/2)))
+  pygame.display.update()
+  pygame.time.delay(3000)
+
+
 
 while run:
   clock.tick(FPS)
   draw()
   for event in pygame.event.get():
-    if event.type==pygame.quit:
+    if event.type==pygame.QUIT:
       run=False
     if event.type==pygame.MOUSEBUTTONDOWN:
       m_x,m_y=pygame.mouse.get_pos()
@@ -90,23 +102,17 @@ while run:
             guessed.append(ltr)
             if ltr not in word:
               hangman_status+=1
-won=True
-for letter in word:
-  if letter not in guessed:
-    won=False
+  won=True
+  for letter in word:
+    if letter not in guessed:
+      won=False
+      break
+  if won:
+    display_message("YOU WON!!")
     break
-if won:
-  win.fill(WHITE)
-  text=WORD_FONT.render("YOU WON!",1,BLACK)
-  win.blit(text,(WIDTH/2-text.get_width()/2),(HEIGHT/2-text.get_height()/2))
-  pygame.display.update()
-  pygame.time.delay(3000)
-  break
 
-if hangman_status==6:
-  print("lost")
-  break
-
-
+  if hangman_status==6:
+    display_message("YOU LOST!!")
+    break
 
 pygame.quit()
